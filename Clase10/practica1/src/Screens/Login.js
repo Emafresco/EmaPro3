@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, Pressable, StyleSheet, TextInput } from 'react-native';
+import { auth } from '../firebase/Config';
+
 
 export default class Login extends Component {
   constructor(props) {
@@ -7,15 +9,38 @@ export default class Login extends Component {
     this.state = {
       email: '',
       userName: '',
-      password: ''
+      password: '',
+      loggedin:false,
+      error:""
     };
   }
 
   onSubmit() {
+    if(!this.state.email.includes("@")){
+     this.setState({error: "Email mal formateado."})
+     return;
+    }
+    if(this.state.password.length<6){
+     this.setState({error: "La password debe tener una longitud minima de 6 caracteres."})
+     return;
+    }
+        auth.signInWithEmailAndPassword(this.state.email, this.state.password)
+        .then(
+          response => {
+            this.setState({loggedin: true})
+          })
+          .catch(
+            error => {
+              this.setState({error: "Credenciales invalidas."})
+            })
+      
     console.log('Logueando usuario:', this.state);
   }
 
   render() {
+        if(this.state.loggedin){
+       this.props.navigation.navigate('HomeMenu')
+    }
     return (
       <View style={styles.container}>
         <View style={styles.card}>
@@ -37,6 +62,7 @@ export default class Login extends Component {
             onChangeText={text => this.setState({ password: text })}
             value={this.state.password}
           />
+          <Text>{this.state.error}</Text>
 
           <Pressable style={styles.loginButton} onPress={() => this.onSubmit()}>
             <Text style={styles.loginText}>Log in</Text>
