@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { auth } from '../firebase/Config';
+import { db } from '../firebase/Config';
 
 export default class Register extends Component {
   constructor(props) {
@@ -19,12 +20,22 @@ export default class Register extends Component {
     .then(
       response => {
         this.setState({registered: true})
+      db.collection('users').add(
+      {
+        email:this.state.email,
+        nombreDeUsuario: this.state.userName,
+        createdAt: Date.now()
+      }
+    )
+    .then()
+    .catch(error => console.log(error))
       })
       .catch(
         error => {
           this.setState({error: "fallo en el registro."})
         })
   }
+
 
   render() {
     if(this.state.registered){
